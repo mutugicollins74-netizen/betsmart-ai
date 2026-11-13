@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetSmart AI</title>
+
+<style>
+body {
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 15px;
+}
+.container {
+  max-width: 500px;
+  margin: auto;
+}
+h1 {
+  color: #00e6a0;
+  text-align: center;
+}
+.card {
+  background: #1e293b;
+  padding: 18px;
+  border-radius: 12px;
+  margin: 15px 0;
+}
+input {
+  width: 90%;
+  padding: 12px;
+  margin: 7px 0;
+  border-radius: 6px;
+  border: none;
+}
+button {
+  background: #00c98b;
+  color: #07151b;
+  border: none;
+  padding: 13px;
+  width: 100%;
+  border-radius: 7px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.result {
+  color: #00e6a0;
+  font-weight: bold;
+}
+.small {
+  color: #aab5c5;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>⚽ BETSMART AI</h1>
+<p style="text-align:center">Smart Football Odds Analyzer</p>
+
+<div class="card">
+<h3>Match Details</h3>
+
+<input id="home" placeholder="Home team">
+<input id="away" placeholder="Away team">
+</div>
+
+<div class="card">
+<h3>Bookmaker Odds</h3>
+<p class="small">Enter odds for Home Win, Draw and Away Win.</p>
+
+<div id="books"></div>
+
+</div>
+
+<button onclick="analyze()">ANALYZE ODDS</button>
+
+<div class="card">
+<h3>Analysis Results</h3>
+<div id="results">Your results will appear here.</div>
+</div>
+
+<p class="small">
+Disclaimer: Odds analysis does not guarantee winning.
+Always gamble responsibly.
+</p>
+
+</div>
+
+<script>
+
+const bookmakers = [
+"Betika",
+"SportPesa",
+"1xBet",
+"Betway"
+];
+
+const books = document.getElementById("books");
+
+bookmakers.forEach((name,i) => {
+books.innerHTML += `
+<h4>${name}</h4>
+<input type="number" step="0.01" min="1"
+id="h${i}" placeholder="Home odds">
+<input type="number" step="0.01" min="1"
+id="d${i}" placeholder="Draw odds">
+<input type="number" step="0.01" min="1"
+id="a${i}" placeholder="Away odds">
+`;
+});
+
+function analyze() {
+
+let outcomes = [
+{ name:"Home Win", values:[] },
+{ name:"Draw", values:[] },
+{ name:"Away Win", values:[] }
+];
+
+for(let i=0;i<bookmakers.length;i++){
+
+let vals = [
+document.getElementById("h"+i).value,
+document.getElementById("d"+i).value,
+document.getElementById("a"+i).value
+];
+
+vals.forEach((v,j)=>{
+let odds = Number(v);
+if(odds > 1 && odds < 1000){
+outcomes[j].values.push({
+book:bookmakers[i],
+odds:odds
+});
+}
+});
+}
+
+let home = document.getElementById("home").value;
+let away = document.getElementById("away").value;
+
+let html = `<h4>${home || "Home"} vs ${away || "Away"}</h4>`;
+
+outcomes.forEach(outcome=>{
+
+if(outcome.values.length===0){
+html += `<p>${outcome.name}: No odds entered</p>`;
+return;
+}
+
+outcome.values.sort((a,b)=>b.odds-a.odds);
+
+let best = outcome.values[0];
+
+html += `
+<div class="card">
+<h4>${outcome.name}</h4>
+<p>Best odds: <span class="result">${best.odds}</span></p>
+<p>Bookmaker: ${best.book}</p>
+<p>Implied probability: 
+${(100/best.odds).toFixed(2)}%</p>
+</div>
+`;
+});
+
+document.getElementById("results").innerHTML=html;
+}
+
+</script>
+</body>
+  </html>
